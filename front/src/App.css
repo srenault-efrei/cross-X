@@ -1,0 +1,28 @@
+.center-div
+{
+  margin: 0 auto;
+  width: 100px;
+  height: 100px;
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100vh !important;
+}
+
+form {
+  width: 500px !important;
+}
+.title{
+text-align: center;
+color: gray;
+}
+
+.position {
+  text-align: center;
+  margin-bottom: 10px;
+}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import useInput from "./hooks/useInput";
 import MagicNumber from "./MagicNumber";
 
+
+
 type Props = {
   io: SocketIOClient.Socket;
   game: string
@@ -24,7 +26,7 @@ export default function Game({ io, game }: Props): JSX.Element {
   const [boolean, setBoolean] = useState(false)
 
   // useEffect(() => {
-    
+
   //   io.on("game::start", ({ howManyPlayers }: { howManyPlayers: number }) => {
   //     setHowManyPlayers(howManyPlayers)     // setPlayer({ nickname, points });
   //     console.log(howManyPlayers)
@@ -46,36 +48,32 @@ export default function Game({ io, game }: Props): JSX.Element {
   };
 
   if (boolean) {
-    return <MagicNumber io={io}></MagicNumber>
+    if (game === 'MagicNumber') {
+      return <MagicNumber io={io}></MagicNumber>
+    }
   }
   return (
-    <div className="m-  auto">
-      <div className="w-full max-w-xs">
-        <form className="bg-white shadow-md rounded-lg px-8 py-8 m-4">
-          <h1 className="mt-2 mb-2 font-bold text-red-800">
-            Hello {player?.nickname && `${player.nickname} `}
-          </h1>
-          <div className="mb-4">
-            <label className="block text-black text-md font-bold mb-2">
-              Nickname
-            </label>
-            <input
-              className="shawod appearance-none border rounded py-2 px-4"
-              placeholder="Sephiroth"
-              {...bind}
-            />
-          </div>
-          <div className="flex items-center justify-between w-full">
-            {howManyPlayers !== 2 ? <button
-              className="bg-blue-800 hover:bg-red-800 text-white px-2 py-2 rounded-md"
-              type="button"
-              onClick={() => handleNickname()}
-            >
-              Send and start the game
+
+    <div className="container">
+      <form className= "formWidth">
+        <h2 className= "title">Choisissez votre nom</h2><br></br>
+        <div className="form-group">
+          <input
+            className="form-control col-md-12 col-sm-2"
+            placeholder="Sephiroth"
+            {...bind}
+          />
+        </div>
+        <div className="">
+          {howManyPlayers !== 2 ? <button
+            className="btn btn-success mb-2"
+            type="button"
+            onClick={() => handleNickname()}
+          >
+            Commencer la partie
             </button> : <p>Veuillez attendre un adversaire</p>}
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }
