@@ -5,7 +5,7 @@ import './App.css'
 import Game from './Game';
 
 
-export default function List(): JSX.Element {
+export default function App(): JSX.Element {
     const [io, setIo] = useState<SocketIOClient.Socket>();
     const [chooseGame, setGame] = useState<string>('');
 
@@ -17,7 +17,7 @@ export default function List(): JSX.Element {
         setGame(str)
       };
 
-      if(chooseGame !== '' && io !==undefined){
+      if(chooseGame !== '' && io !== undefined){
         return <Game io={io} game={chooseGame} />
     }
 

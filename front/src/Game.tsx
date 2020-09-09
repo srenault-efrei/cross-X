@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useInput from "./hooks/useInput";
 import MagicNumber from "./MagicNumber";
-
+import QuickWord from "./QuickWord"
 
 
 type Props = {
@@ -50,6 +50,12 @@ export default function Game({ io, game }: Props): JSX.Element {
   if (boolean) {
     if (game === 'MagicNumber') {
       return <MagicNumber io={io}></MagicNumber>
+    }
+  }
+
+  if (boolean) {
+    if (game === 'QuickWord') {
+      return <QuickWord io={io}></QuickWord>
     }
   }
   return (

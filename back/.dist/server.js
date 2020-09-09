@@ -8,6 +8,8 @@ var _chalk = _interopRequireDefault(require("chalk"));
 
 var _socket = _interopRequireDefault(require("socket.io"));
 
+var _randomWords = _interopRequireDefault(require("random-words"));
+
 var _utils = require("./utils");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -22,6 +24,7 @@ if ((0, _utils.isNull)(process.env.PORT)) {
 var port = parseInt(process.env.PORT);
 var app = (0, _express["default"])();
 var randomNumber = (0, _utils.getRandomArbitrary)(0, 1337);
+var myRandomWords = (0, _randomWords["default"])();
 var server = app.listen(port, function () {
   (0, _utils.display)(_chalk["default"].magenta("crossPWAGame server is running on 0.0.0.0:".concat(port)));
 });
@@ -30,21 +33,24 @@ var users = [];
 var round = 1;
 socketio.on('connection', function (socket) {
   console.log(randomNumber);
+  console.log(myRandomWords);
   round = 1; // CURRENT SOCKET/PLAYER
 
-  socket.emit('game::startAtConnection', {
-    howManyPlayers: users.length
-  });
   (0, _utils.display)(_chalk["default"].cyan("Connection opened for ( ".concat(socket.id, " )")));
   socket.on('disconnect', function () {
     var _users$;
 
+    // if (users[0]?.nickname) {
+    //   const { nickname } = users[0]
+    // }
     if ((_users$ = users[0]) === null || _users$ === void 0 ? void 0 : _users$.nickname) {
-      var nickname = users[0].nickname;
-      (0, _utils.display)(_chalk["default"].yellow("Goodbye ".concat(nickname)));
+      var currentUser = (0, _utils.getUser)(socket.id, users);
+      console.log(currentUser);
+      (0, _utils.display)(_chalk["default"].yellow("Goodbye ".concat(currentUser.nickname)));
     }
 
     users = (0, _utils.removeUser)(socket.id, users);
+    myRandomWords = (0, _randomWords["default"])();
     (0, _utils.display)(_chalk["default"].cyan("Connection closed for ( ".concat(socket.id, " )")));
   });
   socket.on('game::sendNickname', function (payload) {
@@ -61,7 +67,7 @@ socketio.on('connection', function (socket) {
       howManyPlayers: users.length
     });
   });
-  socket.on('game::sendScore', function (payload) {
+  socket.on('magicNumber::sendScore', function (payload) {
     var currentUser = (0, _utils.getUser)(socket.id, users);
     var position = "less";
     var data = JSON.parse(payload);
@@ -90,6 +96,15 @@ socketio.on('connection', function (socket) {
       currentUser: currentUser,
       users: users,
       round: round
+    });
+  });
+  socket.on('QuickWord::sendWord', function (payload) {
+    var currentUser = (0, _utils.getUser)(socket.id, users);
+    var data = JSON.parse(payload);
+    var date = data.date;
+    var word = data.word; // if(word)
+
+    socket.emit('QuickWord::resume', {// dateNow : new Date()
     });
   });
 });

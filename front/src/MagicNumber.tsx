@@ -3,8 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import useInput from "./hooks/useInput";
 import more from './img/more.png'
 import less from './img/less.png'
-
-
+import App from './App'
 
 type Props = {
     io: SocketIOClient.Socket;
@@ -35,7 +34,7 @@ export default function MagicNumber({ io }: Props): JSX.Element {
     }
 
     const sendScore = () => {
-        io.emit("game::sendScore", JSON.stringify({ score }))
+        io.emit("magicNumber::sendScore", JSON.stringify({ score }))
 
         io.on("magicNumber::resume", ({ position, currentUser, users, round }: { position: string, currentUser: User, users: Array<User>, round: Number }) => {
             setPosition(position)
@@ -48,7 +47,8 @@ export default function MagicNumber({ io }: Props): JSX.Element {
         })
     }
 
-    const display = () => {
+
+    const display = (): JSX.Element => {
         // setPosition('none')
         return <div className="alert alert-success" role="alert">
             Félicitation {currentUser?.nickname} vous avez trouvé le bon score
@@ -61,8 +61,6 @@ export default function MagicNumber({ io }: Props): JSX.Element {
                 Félicitation {currentUser?.nickname} vous avez gagné la partie
 </div>
         </div>
-
-
     }
 
 
@@ -73,6 +71,8 @@ export default function MagicNumber({ io }: Props): JSX.Element {
 </div>
         </div>
     }
+
+  
     return (
 
         <div className="container">
@@ -89,7 +89,7 @@ export default function MagicNumber({ io }: Props): JSX.Element {
                     />
                 </div>
 
-                <div className= "position">
+                <div className="position">
                     {position === "less" ? <img src={less} width="50" height="50" /> : position === 'more' ?
                         <img src={more} width="50" height="50" /> : position === 'equal' ? display() : <p></p>}
 

@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import chalk from 'chalk'
 import io, { Socket } from 'socket.io'
+import randomWords from 'random-words'
 
 import { isNull, display, getRandomArbitrary, getUser, removeUser } from './utils'
 
@@ -20,6 +21,7 @@ if (isNull(process.env.PORT)) {
 const port = parseInt(process.env.PORT)
 const app = express()
 let randomNumber: number = getRandomArbitrary(0, 1337)
+let myRandomWords: string = randomWords()
 
 const server = app.listen(port, () => {
   display(chalk.magenta(`crossPWAGame server is running on 0.0.0.0:${port}`))
@@ -32,6 +34,7 @@ let round: number = 1
 
 socketio.on('connection', (socket: Socket) => {
   console.log(randomNumber)
+  console.log(myRandomWords)
   round = 1
   // CURRENT SOCKET/PLAYER
 
@@ -40,11 +43,13 @@ socketio.on('connection', (socket: Socket) => {
   socket.on('disconnect', () => {
 
     if (users[0]?.nickname) {
-      const { nickname } = users[0]
-      display(chalk.yellow(`Goodbye ${nickname}`))
+      let currentUser = getUser(socket.id, users)
+      console.log(currentUser)
+      display(chalk.yellow(`Goodbye ${currentUser.nickname}`))
     }
-    users = removeUser(socket.id, users)
 
+    users = removeUser(socket.id, users)
+    myRandomWords = randomWords()
     display(chalk.cyan(`Connection closed for ( ${socket.id} )`))
   })
 
@@ -63,13 +68,13 @@ socketio.on('connection', (socket: Socket) => {
 
 
 
-  socket.on('game::sendScore', payload => {
+  socket.on('magicNumber::sendScore', payload => {
 
     let currentUser = getUser(socket.id, users)
     let position = "less"
     const data = JSON.parse(payload)
     const { score } = data
-    
+
 
     display(chalk.green(`${currentUser.nickname} indicate the number : ${score}`))
     if (parseInt(score) < randomNumber) {
@@ -77,14 +82,14 @@ socketio.on('connection', (socket: Socket) => {
       position = "more"
     } else if (parseInt(score) > randomNumber) {
       display(chalk.red(`${currentUser.nickname} it's less`))
-    } else if ( parseInt(score) === randomNumber) {
+    } else if (parseInt(score) === randomNumber) {
       display(chalk.red(`${currentUser.nickname} u find the good score`))
       position = "equal"
       users = removeUser(socket.id, users)
       currentUser["points"] = currentUser["points"] + 1
-      round ++
+      round++
       users.push(currentUser)
-      randomNumber = getRandomArbitrary(0,1337)
+      randomNumber = getRandomArbitrary(0, 1337)
       console.log(users)
       console.log(randomNumber)
     }
@@ -95,6 +100,22 @@ socketio.on('connection', (socket: Socket) => {
       users,
       round
 
+    })
+  })
+
+  socket.on('QuickWord::sendWord', payload => {
+
+    let currentUser = getUser(socket.id, users)
+    const data = JSON.parse(payload)
+    const { date } = data
+    const { word } = data
+
+    // if(word)
+
+
+
+    socket.emit('QuickWord::resume', {
+      // dateNow : new Date()
     })
   })
 
