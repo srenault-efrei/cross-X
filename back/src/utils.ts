@@ -4,6 +4,7 @@ interface User {
   id?: string
   nickname?: string
   points?: number
+  fasterUser?: boolean
 }
 
 /**
@@ -70,7 +71,15 @@ export const getRandomArbitrary = (min: number, max: number): number => {
 
 }
 
-export const getUser = (id: string, users: Array<User>): User => {
+export const getOpponent = (id: string, users: Array<User>): User => {
+  for (const user of users) {
+    if (user.id !== id) {
+      return user
+    }
+  }
+}
+
+export const getCurrentUser = (id: string, users: Array<User>): User => {
   for (const user of users) {
     if (user.id === id) {
       return user
@@ -90,13 +99,17 @@ export const removeUser = (id: string, users: Array<User>): Array<User> => {
 }
 
 
-// export const endGame = (users: Array<User>): User => {
- 
-//   for (const user of users) {
-//     if (user.points === 3) {
-//       return user 
-//     }
-//   }
-// }
 
+export const fasterUser = (currentUser: User, opponent: User): User => {
+
+  let result: User = {}
+
+  if (currentUser.fasterUser === true && opponent.fasterUser === false) {
+    result = currentUser
+  } else if (opponent.fasterUser === true && currentUser.fasterUser === false) {
+    result = opponent
+  }
+
+  return result
+}
 

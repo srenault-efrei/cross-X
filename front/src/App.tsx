@@ -31,7 +31,7 @@ export default function App(): JSX.Element {
                     <ul className="list-group col-md-12" style={{textAlign: "center", padding:"20px"}}>
                         <li className="list-group-item list-group-item-action" onClick={() => connectIoServer("MagicNumber")}>MagicNumber</li>
                         <li className="list-group-item list-group-item-action"  onClick={() => connectIoServer("QuickWord")}>QuickWord</li>
-                        <li className="list-group-item list-group-item-action" onClick={() => connectIoServer("WordAndFurious")}>WordAndFurious</li>
+                        {/* <li className="list-group-item list-group-item-action" onClick={() => connectIoServer("WordAndFurious")}>WordAndFurious</li> */}
                     </ul>
                 </div>
                

@@ -9,19 +9,9 @@ type Props = {
   game: string
 };
 
-interface User {
-  id?: string
-  nickname?: string
-}
-
-type Player = {
-  nickname?: string;
-  points?: number;
-};
 
 export default function Game({ io, game }: Props): JSX.Element {
-  const [player, setPlayer] = useState<Player>();
-  const [howManyPlayers, setHowManyPlayers] = useState<number>();
+  const [howManyPlayers, setHowManyPlayers] = useState<number>(0);
   const { value: nickname, bind } = useInput();
   const [boolean, setBoolean] = useState(false)
 
@@ -32,14 +22,14 @@ export default function Game({ io, game }: Props): JSX.Element {
   //     console.log(howManyPlayers)
   //   });
 
-  // },[howManyPlayers]);
+  // },[]);
 
 
   const handleNickname = () => {
 
     io.on("game::start", ({ howManyPlayers }: { howManyPlayers: number }) => {
-      setPlayer({ nickname })
       setHowManyPlayers(howManyPlayers)     // setPlayer({ nickname, points });
+      // console.log(howManyPlayers)
     });
     if (nickname) {
       io.emit("game::sendNickname", JSON.stringify({ nickname }));
@@ -49,20 +39,22 @@ export default function Game({ io, game }: Props): JSX.Element {
 
   if (boolean) {
     if (game === 'MagicNumber') {
-      return <MagicNumber io={io}></MagicNumber>
+      // console.log("howManyPlayers")
+      // console.log(howManyPlayers)
+      return <MagicNumber io={io} howManyPlayers={howManyPlayers}></MagicNumber>
     }
   }
 
   if (boolean) {
     if (game === 'QuickWord') {
-      return <QuickWord io={io}></QuickWord>
+      return <QuickWord io={io} howManyPlayers={howManyPlayers} ></QuickWord>
     }
   }
   return (
 
     <div className="container">
-      <form className= "formWidth">
-        <h2 className= "title">Choisissez votre nom</h2><br></br>
+      <form className="formWidth">
+        <h2 className="title">Choisissez votre nom </h2><br></br>
         <div className="form-group">
           <input
             className="form-control col-md-12 col-sm-2"
@@ -71,13 +63,14 @@ export default function Game({ io, game }: Props): JSX.Element {
           />
         </div>
         <div className="">
-          {howManyPlayers !== 2 ? <button
+
+          <button
             className="btn btn-success mb-2"
             type="button"
             onClick={() => handleNickname()}
           >
             Commencer la partie
-            </button> : <p>Veuillez attendre un adversaire</p>}
+            </button>
         </div>
       </form>
     </div>

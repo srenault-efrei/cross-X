@@ -3,10 +3,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import useInput from "./hooks/useInput";
 import more from './img/more.png'
 import less from './img/less.png'
-import App from './App'
+
 
 type Props = {
     io: SocketIOClient.Socket;
+    howManyPlayers: number
 };
 
 interface User {
@@ -16,13 +17,15 @@ interface User {
 }
 
 
-export default function MagicNumber({ io }: Props): JSX.Element {
+export default function MagicNumber({ io, howManyPlayers }: Props): JSX.Element {
     const { value: score, bind } = useInput();
     const [position, setPosition] = useState<string>();
     const [currentUser, setCurrentUser] = useState<User>();
     const [users, setUsers] = useState<Array<User>>();
     const [round, setRound] = useState<Number>();
     const [finisher, setFinisher] = useState<User>()
+    const [points, setPoints] = useState<number>(0)
+
 
 
     const endGame = (users: Array<User>) => {
@@ -67,12 +70,17 @@ export default function MagicNumber({ io }: Props): JSX.Element {
     if (finisher && finisher !== currentUser) {
         return <div className="container">
             <div className="alert alert-warning" role="alert">
-                Nous somme désolé {finisher.nickname} à gagné la partie
+            Nous sommes désolé {currentUser?.nickname} vous avez perdu la partie
 </div>
         </div>
     }
 
-  
+
+    // if (howManyPlayers < 2) {
+    //     return <div className="container">
+    //         <p>en attente d'un adversaire</p>
+    //     </div>
+    // }
     return (
 
         <div className="container">
@@ -80,6 +88,7 @@ export default function MagicNumber({ io }: Props): JSX.Element {
 
             <form className="formWidth">
                 <h2 className="title">MagicNumber / Manche {round} </h2><br></br>
+                <h5 className="points"> {points} points</h5>
                 <label>Entrer le score à deviner : </label>
                 <div className="form-group">
                     <input

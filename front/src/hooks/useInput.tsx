@@ -23,6 +23,7 @@ export default function useInput(initialValue: string = ""): InputHook {
   const [value, setValue] = useState<string>(initialValue);
 
   return {
+    
     value,
     setValue,
     reset: (): void => setValue(""),

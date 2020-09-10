@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.removeUser = exports.getUser = exports.getRandomArbitrary = exports.display = exports.isNull = exports.isNotNull = void 0;
+exports.fasterUser = exports.removeUser = exports.getCurrentUser = exports.getOpponent = exports.getRandomArbitrary = exports.display = exports.isNull = exports.isNotNull = void 0;
 
 var _moment = _interopRequireDefault(require("moment"));
 
@@ -99,7 +99,7 @@ var getRandomArbitrary = function getRandomArbitrary(min, max) {
 
 exports.getRandomArbitrary = getRandomArbitrary;
 
-var getUser = function getUser(id, users) {
+var getOpponent = function getOpponent(id, users) {
   var _iterator = _createForOfIteratorHelper(users),
       _step;
 
@@ -107,7 +107,7 @@ var getUser = function getUser(id, users) {
     for (_iterator.s(); !(_step = _iterator.n()).done;) {
       var user = _step.value;
 
-      if (user.id === id) {
+      if (user.id !== id) {
         return user;
       }
     }
@@ -118,11 +118,9 @@ var getUser = function getUser(id, users) {
   }
 };
 
-exports.getUser = getUser;
+exports.getOpponent = getOpponent;
 
-var removeUser = function removeUser(id, users) {
-  var result = [];
-
+var getCurrentUser = function getCurrentUser(id, users) {
   var _iterator2 = _createForOfIteratorHelper(users),
       _step2;
 
@@ -130,8 +128,8 @@ var removeUser = function removeUser(id, users) {
     for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
       var user = _step2.value;
 
-      if (user.id !== id) {
-        result.push(user);
+      if (user.id === id) {
+        return user;
       }
     }
   } catch (err) {
@@ -139,15 +137,45 @@ var removeUser = function removeUser(id, users) {
   } finally {
     _iterator2.f();
   }
+};
+
+exports.getCurrentUser = getCurrentUser;
+
+var removeUser = function removeUser(id, users) {
+  var result = [];
+
+  var _iterator3 = _createForOfIteratorHelper(users),
+      _step3;
+
+  try {
+    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+      var user = _step3.value;
+
+      if (user.id !== id) {
+        result.push(user);
+      }
+    }
+  } catch (err) {
+    _iterator3.e(err);
+  } finally {
+    _iterator3.f();
+  }
 
   return result;
-}; // export const endGame = (users: Array<User>): User => {
-//   for (const user of users) {
-//     if (user.points === 3) {
-//       return user 
-//     }
-//   }
-// }
-
+};
 
 exports.removeUser = removeUser;
+
+var fasterUser = function fasterUser(currentUser, opponent) {
+  var result = {};
+
+  if (currentUser.fasterUser === true && opponent.fasterUser === false) {
+    result = currentUser;
+  } else if (opponent.fasterUser === true && currentUser.fasterUser === false) {
+    result = opponent;
+  }
+
+  return result;
+};
+
+exports.fasterUser = fasterUser;
