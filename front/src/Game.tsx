@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useInput from "./hooks/useInput";
 import MagicNumber from "./MagicNumber";
 import QuickWord from "./QuickWord"
@@ -11,26 +11,11 @@ type Props = {
 
 
 export default function Game({ io, game }: Props): JSX.Element {
-  const [howManyPlayers, setHowManyPlayers] = useState<number>(0);
   const { value: nickname, bind } = useInput();
   const [boolean, setBoolean] = useState(false)
 
-  // useEffect(() => {
-
-  //   io.on("game::start", ({ howManyPlayers }: { howManyPlayers: number }) => {
-  //     setHowManyPlayers(howManyPlayers)     // setPlayer({ nickname, points });
-  //     console.log(howManyPlayers)
-  //   });
-
-  // },[]);
-
 
   const handleNickname = () => {
-
-    io.on("game::start", ({ howManyPlayers }: { howManyPlayers: number }) => {
-      setHowManyPlayers(howManyPlayers)     // setPlayer({ nickname, points });
-      // console.log(howManyPlayers)
-    });
     if (nickname) {
       io.emit("game::sendNickname", JSON.stringify({ nickname }));
     }
@@ -39,15 +24,13 @@ export default function Game({ io, game }: Props): JSX.Element {
 
   if (boolean) {
     if (game === 'MagicNumber') {
-      // console.log("howManyPlayers")
-      // console.log(howManyPlayers)
-      return <MagicNumber io={io} howManyPlayers={howManyPlayers}></MagicNumber>
+      return <MagicNumber io={io}></MagicNumber>
     }
   }
 
   if (boolean) {
     if (game === 'QuickWord') {
-      return <QuickWord io={io} howManyPlayers={howManyPlayers} ></QuickWord>
+      return <QuickWord io={io} ></QuickWord>
     }
   }
   return (

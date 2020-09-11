@@ -5,7 +5,7 @@ import io, { Socket } from 'socket.io'
 import randomWord from 'random-words'
 
 import {
-  isNull, display, getRandomArbitrary, getCurrentUser, removeUser, getOpponent, fasterUser
+  isNull, display, getRandomArbitrary, getCurrentUser, removeUser, getOpponent, fasterUser, saveGame, removeKeyFasterUser
 } from './utils'
 
 interface User {
@@ -27,7 +27,6 @@ const port = parseInt(process.env.PORT)
 const app = express()
 let randomNumber: number = getRandomArbitrary(0, 1337)
 let myRandomWord: string = randomWord()
-// let dateSendName: any = new Date()
 
 const server = app.listen(port, () => {
   display(chalk.magenta(`crossPWAGame server is running on 0.0.0.0:${port}`))
@@ -37,10 +36,14 @@ const socketio = io(server)
 
 let users: Array<User> = []
 let round: number = 1
+let beginDate: Date
+let endDate: Date
 
 socketio.on('connection', (socket: Socket) => {
-  console.log(randomNumber)
-  console.log(myRandomWord)
+
+  display(chalk.blue(`le nombre aléatoire est : ${randomNumber}\n`))
+  display(chalk.blue(`le mot aléatoire est : ${myRandomWord}\n`))
+
   round = 1
   // CURRENT SOCKET/PLAYER
 
@@ -59,6 +62,8 @@ socketio.on('connection', (socket: Socket) => {
     display(chalk.cyan(`Connection closed for ( ${socket.id} )`))
   })
 
+  // ADD NEW USER WITH NAME
+
   socket.on('game::sendNickname', payload => {
     const user = JSON.parse(payload)
     const { nickname } = user
@@ -66,19 +71,33 @@ socketio.on('connection', (socket: Socket) => {
 
     users.push({ id: socket.id, nickname, points: 0, fasterUser: false })
     console.log(users)
-    // dateSendName = new Date()
-    // console.log(dateSendName)
+    if (users.length === 2) {
+      beginDate = new Date()
+    }
 
-    socket.emit('game::start', {
-      howManyPlayers: users.length,
-    })
+    // socket.emit('game::start', {
+    //   howManyPlayers: users.length,
+    // })
   })
 
+  // socket.on('game::howManyPlayers', playload => {
+  //   let currentUser = getCurrentUser(socket.id, users)
 
+  //   socket.emit('game::players', {
+  //     users,
+  //     currentUser,
+  //     players: users.length
+  //   })
+  // })
+
+
+
+  //  MAGICNUMBER SENDSCORE
 
   socket.on('magicNumber::sendScore', payload => {
 
     let currentUser = getCurrentUser(socket.id, users)
+    let opponent: User = getOpponent(socket.id, users)
     let position: string = "less"
     const data = JSON.parse(payload)
     const { score } = data
@@ -99,7 +118,14 @@ socketio.on('connection', (socket: Socket) => {
       users.push(currentUser)
       randomNumber = getRandomArbitrary(0, 1337)
       console.log(users)
-      console.log(randomNumber)
+      display(chalk.blue(`le nombre aléatoire est : ${randomNumber}\n`))
+    } else if (score === '' || typeof score === 'string') {
+      position = "notNumber"
+    }
+
+    if (currentUser.points === 3 || opponent.points === 3) {
+      endDate = new Date()
+      saveGame("magicNumber", removeKeyFasterUser(users), beginDate, endDate)
     }
 
     socket.emit('magicNumber::resume', {
@@ -110,45 +136,33 @@ socketio.on('connection', (socket: Socket) => {
 
     })
   })
-
+  // EVENT RANDOM WORD
   socket.on('QuickWord::randomWord', playload => {
-    let points = getCurrentUser(socket.id, users).points
 
     socket.emit('Quickword::word', {
       myRandomWord,
-      round,
-      points
-
     })
   })
 
-  socket.on('QuickWord::sendWord', payload => {
+  // QUICKWORD SENDWORD
 
+  socket.on('QuickWord::sendWord', payload => {
 
     let currentUser = getCurrentUser(socket.id, users)
     let message: string = 'found'
     const data = JSON.parse(payload)
     const { word } = data
-    // let dateSendWord: any = new Date()
-    // let diff: Diff = dateDiff(dateSendName,dateSendWord)
     let winner: User = {}
     let opponent: User = getOpponent(socket.id, users)
 
-    // console.log(opponent)
-
     if (word === myRandomWord) {
-
       users = removeUser(socket.id, users)
       if (opponent.fasterUser !== true) {
         currentUser["fasterUser"] = true
-
       }
 
       users.push(currentUser)
       winner = fasterUser(currentUser, opponent)
-      // console.log(winner)
-      console.log(`winner`)
-      console.log(winner)
       if (winner.id === currentUser.id) {
         display(chalk.green(`${winner.nickname} u found the word the fastest `))
         myRandomWord = randomWord()
@@ -156,29 +170,28 @@ socketio.on('connection', (socket: Socket) => {
         currentUser["points"] = currentUser["points"] + 3
         users.push(currentUser)
         console.log(users)
-        console.log(myRandomWord)
+        display(chalk.blue(`le mot aléatoire est : ${myRandomWord}\n`))
         users = removeUser(socket.id, users)
         currentUser["fasterUser"] = false
         users.push(currentUser)
-        console.log(users)
         message = 'faster'
         round++
-        console.log(round)
-      } 
+      }
 
     } else if (word !== myRandomWord) {
       display(chalk.red(`${word} it's not the good word`))
       message = 'not found'
     }
-
-
+    if (currentUser.points === 15 || opponent.points === 15) {
+      endDate = new Date()
+      saveGame("QuickWord", removeKeyFasterUser(users), beginDate, endDate)
+    }
 
     socket.emit('QuickWord::resume', {
 
       message,
       currentUser,
       users,
-      // winner,
       round,
       myRandomWord
     })

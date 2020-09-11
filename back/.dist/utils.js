@@ -3,9 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fasterUser = exports.removeUser = exports.getCurrentUser = exports.getOpponent = exports.getRandomArbitrary = exports.display = exports.isNull = exports.isNotNull = void 0;
+exports.removeKeyFasterUser = exports.saveGame = exports.fasterUser = exports.removeUser = exports.getCurrentUser = exports.getOpponent = exports.getRandomArbitrary = exports.display = exports.isNull = exports.isNotNull = void 0;
 
 var _moment = _interopRequireDefault(require("moment"));
+
+var _chalk = _interopRequireDefault(require("chalk"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -14,6 +16,8 @@ function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symb
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+var fs = require('fs');
 
 /**
  * @function isNotNull
@@ -96,6 +100,19 @@ exports.display = display;
 var getRandomArbitrary = function getRandomArbitrary(min, max) {
   return Math.floor(Math.random() * Math.floor(max - min) + min);
 };
+/**
+ * @function getOpponent
+ * @description return the opponent of the game 
+ *
+ * @param {string} id - socketId of the currentUser
+ * @param {Array<User>} users - table with game users
+ * @return {user}
+ *
+ * @example
+ * getOpponent('12121', [{id:12121, name:Steven, points: 0 ,fasterUser: false},{id:333232Dss, name: heliote, points: 0,fasterUser: false}])
+ *
+ */
+
 
 exports.getRandomArbitrary = getRandomArbitrary;
 
@@ -117,6 +134,19 @@ var getOpponent = function getOpponent(id, users) {
     _iterator.f();
   }
 };
+/**
+ * @function getCurrentUser
+ * @description return the current User 
+ *
+ * @param {string} id - socketId of the currentUser
+ * @param {Array<User>} users - table with game users
+ * @return {user}
+ *
+ * @example
+ * getCurrentUser('333232Dss', [{id:12121, name:Steven, points: 0, fasterUser: false},{id:333232Dss, name: heliote, points: 0 ,fasterUser: false}])
+ *
+ */
+
 
 exports.getOpponent = getOpponent;
 
@@ -138,6 +168,19 @@ var getCurrentUser = function getCurrentUser(id, users) {
     _iterator2.f();
   }
 };
+/**
+ * @function removeUser
+ * @description remove the user of the game table
+ *
+ * @param {string} id - socketId of the user u want remove
+ * @param {Array<User>} users - table with game users
+ * @return {Array<User>}
+ *
+ * @example
+ * removeUser('333232Dss', [{id:12121, name:Steven, points: 0 ,fasterUser: false},{id:333232Dss, name: heliote, points: 0 ,fasterUser: false}])
+ *
+ */
+
 
 exports.getCurrentUser = getCurrentUser;
 
@@ -163,6 +206,19 @@ var removeUser = function removeUser(id, users) {
 
   return result;
 };
+/**
+ * @function fasterUser
+ * @description define the fastest user
+ *
+ * @param {User} currentUser - the currentUser of the game
+ * @param {User} opponent - the opponent of the game
+ * @return {User}
+ *
+ * @example
+ * fasterUser({id:12121, name:Steven, points: 0 ,fasterUser: false}, {id:333232Dss, name: heliote, points: 0 ,fasterUser: false})
+ *
+ */
+
 
 exports.removeUser = removeUser;
 
@@ -179,3 +235,79 @@ var fasterUser = function fasterUser(currentUser, opponent) {
 };
 
 exports.fasterUser = fasterUser;
+var data = {};
+var tabQuickWord = [];
+var tabMagicNumber = [];
+/**
+ * @function saveGame
+ * @description save the data of each game
+ *
+ * @param {string} game - the current game
+ * @param { Array<User>} users - table of players
+ * @param {Date} beginDate - begin date of the game 
+ * @param {Date} endDate - end date of the game
+
+ * @return {void}
+ *
+ * @example
+ * saveGame('QuickWord', [{id:12121, name:Steven, points: 0 ,fasterUser: false},{id:333232Dss, name: heliote, points: 0 ,fasterUser: false}],
+ *  2020-09-11T03:27:53.697Z, 2020-09-11T03:28:57.095Z)
+ *
+ */
+
+var saveGame = function saveGame(game, users, beginDate, endDate) {
+  var newFile = "game.json";
+  var objectGame = {};
+  objectGame["beg"] = beginDate;
+  objectGame["end"] = endDate;
+  objectGame["players"] = users;
+
+  if (game === 'QuickWord') {
+    tabQuickWord.push(objectGame);
+    data[game] = tabQuickWord;
+  } else {
+    tabMagicNumber.push(objectGame);
+    data[game] = tabMagicNumber;
+  }
+
+  var dataStringify = JSON.stringify(data, null, 4);
+  fs.writeFile(newFile, dataStringify, function (err) {
+    if (err) throw err;
+  });
+  display(_chalk["default"].green('File `' + newFile + '` has been successfully created'));
+};
+/**
+ * @function removeKeyFasterUser
+ * @description remove the properties fasterUser in the table of players
+ *
+ * @param {Array<User>} users - table of players
+ * @param {User} opponent - the opponent of the game
+ * @return {Array<User>}
+ *
+ * @example
+ * removeKeyFasterUser({id:12121, name:Steven, points: 0 ,fasterUser: false}, {id:333232Dss, name: heliote, points: 0 ,fasterUser: false})
+ *
+ */
+
+
+exports.saveGame = saveGame;
+
+var removeKeyFasterUser = function removeKeyFasterUser(users) {
+  var _iterator4 = _createForOfIteratorHelper(users),
+      _step4;
+
+  try {
+    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+      var user = _step4.value;
+      delete user.fasterUser;
+    }
+  } catch (err) {
+    _iterator4.e(err);
+  } finally {
+    _iterator4.f();
+  }
+
+  return users;
+};
+
+exports.removeKeyFasterUser = removeKeyFasterUser;
