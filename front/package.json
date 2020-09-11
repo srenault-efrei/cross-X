@@ -19,8 +19,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "mkcert": "cd public && mkcert -install && mkcert localhost 127.0.0.1 ::1",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ssl": "cd build && http-server -S -o -C 'localhost+2.pem' -K 'localhost+2-key.pem'",
+    "start-sw": "npm run mkcert && npm run build && npm run ssl"
+
   },
   "eslintConfig": {
     "extends": "react-app"
